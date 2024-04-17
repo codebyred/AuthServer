@@ -6,45 +6,45 @@ dotenv.config({path:'./.env'});
 export const authenticate =  async (req,res)=>{
 
     //authentication
-    const {email, password, role} = req.body;
+    const {email, password} = req.body;
+    console.log(req.body)
+  
+    const userApiResponse = await fetch(`http://localhost:3000/api/user`,{
+        method:"GET",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        credentials: "include",
+    });
 
-    console.log("");
+    if(!userApiResponse.ok) 
+        return res.status(500).json({msg:"could not authentiacte"});
 
-    let found;
+    const userData = await userApiResponse.json();
 
-    if(role === "user"){
-        const res = await fetch(`http://localhost:3000/api/user/${email}`,{
-            method:'GET'
-        });
-        const data = await res.json();
-        found = data.pop();
-
-    }
-
-    if(role === "worker"){
-        const res = await fetch(`http://localhost:3000/api/worker/${email}`,{
-            method:'GET'
-        });
-
-        const data = await res.json();
-        found = data.pop();
-    }  
+    const user = userData.find((user)=> user.email === email);
     
-    if(!found) return res.json({success:0, message:"no user found"});
+    if(!user) return res.json({success:0, message:"no user found"});
 
-    if(found.password !== password) return res.json({success:0, message:"password does not match"});
+    if(user.password !== password) return res.json({success:0, message:"password does not match"});
 
     // token 
-    const accessToken = jwt.sign(found, process.env.ACCESS_TOKEN_SECRET);
+    const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
 
 
     return res.json({
-        success:1, message:"welcome",
+        success:1, 
+        msg:"welcome",
         user:{
-            username:`${found.firstName} ${found.lastName}`,
-            email:found.email
+            username:`${user.firstName} ${user.lastName}`,
+            email:user.email
         },
         accessToken
     });
+
+}
+
+export const register = ()=>{
 
 }
