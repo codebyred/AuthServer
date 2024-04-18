@@ -1,5 +1,5 @@
 import express from "express";
-import {authenticate, register} from "./login.controller.js";
+import {authenticate, register} from "./auth.controller.js";
 import * as dotenv from "dotenv";
 
 dotenv.config({path:'./.env'});
@@ -40,7 +40,8 @@ app.listen(port, async (err) =>{
             credentials: "include",
         }
     
-        const apiGatewayURL = "http://localhost:3000/register";
+        const apiGatewayPort = "3020";
+        const apiGatewayURL =  `http://localhost:${apiGatewayPort}/register`;
 
         await fetch(apiGatewayURL, fetchOptions);
    
